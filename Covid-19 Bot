@@ -1,0 +1,53 @@
+#This Bot will download Covid 19 Data
+#This Bot does not use Chrome Web Driver
+#It is a looped process
+#File Will be saved in a specific folder, please create "Covid-19 Dataset" and store it in your Desktop
+#File will be saved in 
+
+#Libaries Needed
+
+from selenium import webdriver
+import time
+import requests
+import shutil #this is for all file operations, delete, copy, move
+import os #access your computer OS
+import schedule
+from datetime import date
+import pandas as pd
+import mysql.connector
+from sqlalchemy import create_engine
+
+
+def covidbot():
+    url = "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+    file = "owid-covid-data.csv"
+    r = requests.get(url, allow_redirects=True)
+    open('owid-covid-data.csv', 'wb').write(r.content)
+        #'owid-covid' can also be replaced with file since it is defined. 
+
+    cwd = os.getcwd() #cwd is current working directory
+    source_file = cwd + "/" + file #the "+ file" is the csv that i want, look at how file is defined above
+    print(cwd)
+    destination = "Covid-19 Dataset" #this is new folder that i want file to be stored in
+    index = cwd.rfind('/') #this is to find the last index of slash, which is the 25th digit in the path
+    print(index)
+    #sub string 
+    #the +1 is to add the slash after the Desktop, /,. also count as variables
+    path = cwd[0:index + 1] + destination #you want the current working directory to be 0 to 25 on the path, then +1 for the slash
+    print(path)
+
+
+
+    #Create Directory, to create a new file based on the date everyday
+    #Move the covid 19 dataset from github from the covid 19 dataset file into another file within
+    today = date.today()
+    long_date = today.strftime("%B %d, %Y")
+    path_2 = path + "/" + long_date # each "/" means making a folder in a folder, but file is not created, this is just the pre-defined path
+    print(path_2)
+    os.mkdir(path_2)  #mkdir is make directory, directory makes the folder
+    shutil.move(source_file, path_2) #so shutil move just moves the file, because i have already pre defined source_file as well as path_2
+
+schedule.every().day.at("10:00").do(covidbot)
+while True:
+        schedule.run_pending()
+        time.sleep(1)
