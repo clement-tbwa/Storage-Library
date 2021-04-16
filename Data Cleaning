@@ -1,0 +1,124 @@
+import pandas as pd
+import numpy as np
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+
+#Data Cleaning
+
+
+#import the CSV file
+df = pd.read_csv ('auto-mpg.csv')
+
+#a brief overlook
+df.head()
+
+#check types
+# df.dtypes
+
+#Renaming Columns Using a Dictionary
+
+
+#build a dictionary
+new_names = {'accel':'acceleration', 'yr' : 'year','hp' : 'horsepower', 'cyl' : 'cyclic'}
+
+df.rename(columns = new_names, inplace = True)
+df.head()
+
+
+#Duplicates
+
+
+#check for duplicates
+
+duplicaterowsdf = df[df.duplicated()]
+numberofrows = len(duplicaterowsdf.index)
+if numberofrows >0:
+    print("there are duplicates")
+else:
+    print("there are no duplicates")
+
+
+# #if there are duplicates
+# df.drop_duplicates(inplace=True)
+
+# #or dropping a particular column
+
+# df.drop_duplicates(subset = 'column_name', inplace=True)
+
+
+#Missing Values
+
+
+#quick check to see if there are any missing values
+df.isnull().values.any()
+
+#total number of missing values
+df.isnull().sum().sum()
+
+
+#Outlier Values
+
+
+# Finding Outlier Values using a BoxPlot
+
+df.boxplot(column=['horsepower'])
+
+#use the max and mean in describe() to help identify outlier. If the mean is 45 but the max is 700 000, something is wrong
+df['horsepower'].describe()
+
+
+#Dealing With NA Values
+
+
+#1. Identifying NA Values
+
+#Using a Color map
+cols = df.columns[:9] # specify columns number
+colours = ['#40E0D0', '#FF6347'] # specify the colours - Cyan is missing. red is not missing.
+sns.heatmap(df[cols].isnull(), cmap=sns.color_palette(colours))
+
+
+# if it's a larger dataset and the visualization takes too long can do this.
+# % of missing.
+for col in df.columns:
+    pct_missing = np.mean(df[col].isnull())
+    print('{} - {}%'.format(col, round(pct_missing*100)))
+
+
+#to look for a specific row use df.loc
+
+
+#Drop Na Values
+
+
+#drop NA Values
+df.dropna()
+#drop rows when only ALL values are NA
+df.dropna(axis = 'index', how='all', inplace=True) #'axis = index' index can be "column", "row", 'index' => this will determine what is being dropped
+#dropping rows with NAN/missing values in a specific column
+df.dropna(axis='index', how='all', subset =['column name'], inplace=True)
+
+
+# Column Dropping
+cols_to_drop = ['column1', 'column2', 'column3']
+df2 = df.drop(cols_to_drop, inplace=True, axis=1)
+
+
+#replacing column NA Values with Median,mean,min
+df['column'] = df['column'].fillna(df.median())
+df['column'] = df['column'].fillna(df.mean())
+df['column'] = df['column'].fillna(df.min())
+#remove 'column' to change the entire df
+
+#replacing NA values with 0
+df.fillna(0, inplace=True)
+
+
+#Replacing 
+df['YearsCode'].replace('Less than 1 year', 0, inplace = True)
+df['YearsCode'].replace('More than 50 years', 51, inplace=True)
+
+
+#export CSV file
+df.to_csv(r'filename.csv', index=False)
